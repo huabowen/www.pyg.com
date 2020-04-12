@@ -3,11 +3,10 @@ namespace app\adminapi\controller;
 
 use think\Db;
 
-class Index
+class Index extends BaseApi
 {
     public function index()
     {
-        $goods=Db::table('pyg_goods')->find();
-        var_dump($goods);
+        echo encrypt_password('123456');die;
     }
 }
