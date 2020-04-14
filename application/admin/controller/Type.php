@@ -43,9 +43,9 @@ class Type extends Base
     public function save(Request $request)
     {
         //接收输入参数
-        $data = $request->param();
+        $params = $request->param();
         //参数检测
-        if (empty($data['type_name'])) {
+        if (empty($params['type_name'])) {
             $this->error('类型名称不能为空');
         }
         \think\Db::startTrans();

@@ -38,4 +38,14 @@ Route::domain('adminapi', function(){
 
     //单图片上传接口
     Route::post('logo', 'adminapi/upload/logo');
+    //多图片上传接口
+    Route::post('images', 'adminapi/upload/images');
+    //商品品牌接口
+    Route::resource('brands', 'adminapi/brand', [], ['id'=>'\d+']);
+    //商品模型（类型）接口
+    Route::resource('types', 'adminapi/type', [], ['id'=>'\d+']);
+    //商品接口
+    Route::resource('goods', 'adminapi/goods', [], ['id'=>'\d+']);
+    //相册图片删除
+    Route::delete('delpics/:id', 'adminapi/goods/delpics', [], ['id'=>'\d+']);
 });
