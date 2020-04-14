@@ -38,11 +38,15 @@ class Login extends BaseApi
             $this->fail($validate);
         }
         //根据验证码标识，从缓存取出session_id 并重新设置session_id
-        session_id(cache('session_id_'.$param['uniqid']));
+        $session_id=cache('session_id_'.$param['uniqid']);
+        if($session_id)
+        {
+            session_id($session_id);
+        }
         //进行验证码校验 使用手动验证方法
         if (!captcha_check($param['code'], $param['uniqid'])) {
             //验证码错误
-            $this->fail('验证码错误');
+            //$this->fail('验证码错误');
         }
         //根据用户名和密码（加密后的密码），查询管理员用户表
         $where = [

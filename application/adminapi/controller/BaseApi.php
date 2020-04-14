@@ -6,71 +6,89 @@ use think\Controller;
 
 class BaseApi extends Controller
 {
-    //无需登录
-    protected $no_login = ['login/login', 'login/captcha'];
-    //初始化方法
-    public function _initialize()
+    //无需登录的请求数组
+    protected $no_login = ['login/captcha', 'login/login'];
+    //控制器的初始化方法（和 直接写构造方法 二选一）
+    protected function _initialize()
     {
+        //实现父类的初始化方法
         parent::_initialize();
+        //初始化代码
+        //处理跨域请求
         //允许的源域名
         header("Access-Control-Allow-Origin: *");
         //允许的请求头信息
         header("Access-Control-Allow-Headers: Origin, X-Requested-With, Content-Type, Accept, Authorization");
         //允许的请求类型
         header('Access-Control-Allow-Methods: GET, POST, PUT,DELETE,OPTIONS,PATCH');
-        //登录检测，判断是否登录，未登录则部分功能受限
+
         try{
+            //登录检测
+            //获取当前请求的控制器方法名称
             $path = strtolower($this->request->controller()) . '/' . $this->request->action();
             if(!in_array($path, $this->no_login)){
-                $user_id = \tools\jwt\Token::getUserId();
-                //登录验证
+                //需要做登录检测
+                //$user_id = \tools\jwt\Token::getUserId();
+                //为了方便测试，写死用户id
+                $user_id = 1;
                 if(empty($user_id)){
-                    $this->fail('未登录或Token无效', 403);
+                    $this->fail('token验证失败', 403);
                 }
-                //将获取的用户id 设置到请求信息中
+                //权限检测
+                $auth_check = \app\adminapi\logic\AuthLogic::check();
+                if(!$auth_check){
+                    $this->fail('没有权限访问', 402);
+                }
+                //将得到的用户id 放到请求信息中去  方便后续使用
                 $this->request->get(['user_id' => $user_id]);
                 $this->request->post(['user_id' => $user_id]);
             }
-        }catch(\Exception $e){
-            $this->fail('服务异常，请检查token令牌', 403);
+        }catch (\Exception $e){
+            //token解析失败
+            $this->fail('token解析失败', 404);
         }
+
     }
+
     /**
-     * 通用响应
+     * 通用的响应
      * @param int $code 错误码
-     * @param string $msg 错误描述
+     * @param string $msg 错误信息
      * @param array $data 返回数据
      */
-    public function response($code=200, $msg='success', $data=[])
+    protected function response($code=200, $msg='success', $data=[])
     {
         $res = [
             'code' => $code,
             'msg' => $msg,
             'data' => $data
         ];
-        //以下两行二选一
-        //echo json_encode($res, JSON_UNESCAPED_UNICODE);die;
-        json($res)->send();die;
+        //原生php写法
+        echo json_encode($res, JSON_UNESCAPED_UNICODE);die;
+        //框架写法
+        //json($res)->send();
+
     }
     /**
-     * 失败时响应
-     * @param string $msg 错误描述
+     * 成功的响应
+     * @param array $data 返回数据
      * @param int $code 错误码
+     * @param string $msg 错误信息
      */
-    public function fail($msg='fail',$code=500)
+    protected function ok($data=[], $code=200, $msg='success')
     {
-        return $this->response($code, $msg);
+        $this->response($code, $msg, $data);
     }
 
     /**
-     * 成功时响应
-     * @param array $data 返回数据
+     * 失败的响应
+     * @param $msg 错误信息
      * @param int $code 错误码
-     * @param string $msg 错误描述
+     * @param array $data 返回数据
      */
-    public function ok($data=[], $code=200, $msg='success')
+    protected function fail($msg, $code=500, $data=[])
     {
-        return $this->response($code, $msg, $data);
+        $this->response($code, $msg, $data);
     }
 
 }
