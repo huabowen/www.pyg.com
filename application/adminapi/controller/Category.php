@@ -82,6 +82,10 @@ class Category extends BaseApi
         }
         //logo图片处理
         $params['image_url'] = isset($params['logo']) ? $params['logo'] : '';
+        //生成缩略图  /uploads/category/20190716/1232.jpg
+        if(isset($params['image_url']) && !empty($params['image_url']) && is_file('.' . $params['image_url'])){
+            \think\Image::open('.' . $params['image_url'])->thumb(200,100)->save('.' . $params['image_url']);
+        }
         //$params['image_url'] = $params['logo'] ?? '';
         $cate = \app\common\model\Category::create($params, true);
         $info = \app\common\model\Category::find($cate['id']);

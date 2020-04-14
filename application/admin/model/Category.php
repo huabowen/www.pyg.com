@@ -8,6 +8,10 @@ class Category extends Model
 {
     protected $hidden = ['create_time', 'update_time', 'delete_time'];
     //
+    public function brands()
+    {
+        return $this->hasMany('Brand', 'cate_id');
+    }
     public function getIsHotAttr($value)
     {
         return $value ? '是' : '否' ;

@@ -58,7 +58,7 @@ class Category extends Base
 //        dump($data);die;
         //参数验证
         $validate = $this->validate($data,[
-            'cate_name|分类名称' => 'require|length:2,10',
+            'cate_name|分类名称' => 'require|length:2,100',
             'pid|上级分类' => 'require|integer|egt:0',
             'sort|排序' => 'require|integer|egt:0',
             'is_hot|是否热门' => 'require|in:0,1',
