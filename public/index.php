@@ -9,7 +9,9 @@
 // | Author: liu21st <liu21st@gmail.com>
 // +----------------------------------------------------------------------
 
-//处理跨域预检请求
+// [ 应用入口文件 ]
+
+//处理跨域Options预检请求
 if($_SERVER['REQUEST_METHOD'] == 'OPTIONS'){
     //允许的源域名
     header("Access-Control-Allow-Origin: *");
@@ -19,10 +21,6 @@ if($_SERVER['REQUEST_METHOD'] == 'OPTIONS'){
     header('Access-Control-Allow-Methods: GET, POST, PUT,DELETE,OPTIONS,PATCH');
     exit;
 }
-
-
-// [ 应用入口文件 ]
-
 // 定义应用目录
 define('APP_PATH', __DIR__ . '/../application/');
 // 加载框架引导文件

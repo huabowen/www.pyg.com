@@ -7,18 +7,20 @@ use think\Controller;
 class Login extends BaseApi
 {
     /**
-     * 获取验证码图片地址
+     * 验证码接口
      */
     public function captcha()
     {
-        //验证码标识
+        //验证码唯一标识
         $uniqid = uniqid(mt_rand(100000, 999999));
-        //返回数据 验证码图片路径、验证码标识
-        $data = [
-            'src' => captcha_src($uniqid),
+        //生成验证码地址
+        $src = captcha_src($uniqid);
+        //返回数据
+        $res = [
+            'src' => $src,
             'uniqid' => $uniqid
         ];
-        $this->ok($data);
+        $this->ok($res);
     }
 
     /**
@@ -26,56 +28,68 @@ class Login extends BaseApi
      */
     public function login()
     {
-        //获取输入变量
-        $param = input();
-        $validate = $this->validate($param, [
-            'username' => 'require',
-            'password' => 'require',
-            'code' => 'require',
-            'uniqid' => 'require'
+        //接收参数
+        $params = input();
+
+        //参数检测（表单验证）
+        $validate = $this->validate($params, [
+            'username|用户名' => 'require',
+            'password|密码' => 'require',
+            'code|验证码' => 'require',
+            //'code|验证码' => 'require|captcha:'.$params['uniqid'], //验证码自动校验
+            'uniqid|验证码标识' => 'require'
         ]);
         if($validate !== true){
-            $this->fail($validate);
+            //参数验证失败
+            $this->fail($validate, 401);
         }
-        //根据验证码标识，从缓存取出session_id 并重新设置session_id
-        $session_id=cache('session_id_'.$param['uniqid']);
-        if($session_id)
-        {
+        //校验验证码 手动校验
+        //从缓存中根据uniqid获取session_id, 设置session_id, 用于验证码校验
+        $session_id = cache('session_id_' . $params['uniqid']);
+        if($session_id){
             session_id($session_id);
         }
-        //进行验证码校验 使用手动验证方法
-        if (!captcha_check($param['code'], $param['uniqid'])) {
+
+        if(!captcha_check($params['code'], $params['uniqid']))
+        {
             //验证码错误
-            //$this->fail('验证码错误');
+            //$this->fail('验证码错误', 402);
         }
-        //根据用户名和密码（加密后的密码），查询管理员用户表
-        $where = [
-            'username' => $param['username'],
-            'password' => encrypt_password($param['password'])
-        ];
-        $info = \app\common\model\Admin::where($where)->find();
-        if(!$info){
+        //查询用户表进行认证
+        $password = encrypt_password($params['password']);
+        $info = \app\common\model\Admin::where('username', $params['username'])->where('password', $password)->find();
+        if(empty($info)){
             //用户名或者密码错误
-            $this->fail('用户名或者密码错误');
+            $this->fail('用户名或者密码错误', 403);
         }
-        $data['token'] = \tools\jwt\Token::getToken($info->id);
-        $data['user_id'] = $info->id;
-        $data['username'] = $info->username;
-        $data['nickname'] = $info->nickname;
-        $data['email'] = $info->email;
-        //登录成功
+        //生成token令牌
+        $token = \tools\jwt\Token::getToken($info['id']);
+        //返回数据
+        $data = [
+            'token' => $token,
+            'user_id' => $info['id'],
+            'username' => $info['username'],
+            'nickname' => $info['nickname'],
+            'email' => $info['email']
+        ];
         $this->ok($data);
     }
+
     /**
-     * 后台退出接口
+     * 退出
      */
     public function logout()
     {
-        //清空token  将需清空的token存入缓存，再次使用时，会读取缓存进行判断
+        //记录token 为已退出
+        //获取当前请求中的token
         $token = \tools\jwt\Token::getRequestToken();
+        //从缓存中取出 注销的token数组
         $delete_token = cache('delete_token') ?: [];
+        //将当前的token 加入到数组中 ['dssfd','dsfds']
         $delete_token[] = $token;
+        //将新的数组 重新存到缓存中  缓存1天
         cache('delete_token', $delete_token, 86400);
+        //返回数据
         $this->ok();
     }
 }

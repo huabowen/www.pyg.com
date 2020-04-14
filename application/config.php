@@ -240,9 +240,10 @@ return [
         'var_page'  => 'page',
         'list_rows' => 15,
     ],
-    'captcha'=>[
-        'length'=>4,
-        'useCurve'=>false,
-    ]
 
+    //验证码配置
+    'captcha' => [
+        'length'        => 4,
+        'useCurve'      => false,
+    ]
 ];
