@@ -41,7 +41,7 @@ return [
     // 是否开启多语言
     'lang_switch_on'         => false,
     // 默认全局过滤方法 用逗号分隔多个
-    'default_filter'         => 'htmlspecialchars',
+    'default_filter'         => 'remove_xss',
     // 默认语言
     'default_lang'           => 'zh-cn',
     // 应用类库后缀
@@ -54,7 +54,7 @@ return [
     // +----------------------------------------------------------------------
 
     // 默认模块名
-    'default_module'         => 'index',
+    'default_module'         => 'home',
     // 禁止访问模块
     'deny_module_list'       => ['common'],
     // 默认控制器名
@@ -245,5 +245,25 @@ return [
     'captcha' => [
         'length'        => 4,
         'useCurve'      => false,
-    ]
+    ],
+
+    //短信配置
+    'msg' => [
+        'gateway' => 'https://way.jd.com/chuangxin/dxjk',
+        'appkey' => '56094ca4632daa86455f007d61e3b113'
+    ],
+
+    //支付方式
+    'pay_type' => [
+        'alipay' => ['pay_code'=>'alipay', 'pay_name'=>'支付宝', 'logo'=>'/static/home/img/_/pay2.jpg'],
+        'wechat' => ['pay_code'=>'wechat', 'pay_name'=>'微信支付', 'logo'=>'/static/home/img/_/pay3.jpg'],
+        'union' => ['pay_code'=>'union', 'pay_name'=>'银联', 'logo'=>'/static/home/img/_/pay4.jpg'],
+    ],
+
+    //ping++聚合支付
+    'pingpp' => [
+        'api_key' => 'sk_test_KOGmH8SSuzrDOmLiDCzX9eX9',//test_key 或 live_key
+        'app_id' => 'app_nTG0uPa5OWH4mH0m',// 应用app_id
+        'private_key_path' => './pingpp_rsa_private_key.pem' //商户私钥文件路径
+    ],
 ];

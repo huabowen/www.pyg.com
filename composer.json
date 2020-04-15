@@ -21,7 +21,10 @@
         "lcobucci/jwt": "3.3",
         "topthink/think-captcha": "1.*",
         "topthink/think-image": "1.*",
-        "ezyang/htmlpurifier": "^4.11"
+        "ezyang/htmlpurifier": "^4.11",
+        "pingplusplus/pingpp-php": "^2.4",
+        "endroid/qr-code": "^2.5",
+        "elasticsearch/elasticsearch": "^6.7"
     },
     "autoload": {
         "psr-4": {
